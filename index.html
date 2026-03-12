@@ -1,50 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Horaires de prière</title>
-
-<style>
-body{
-font-family: Arial;
-text-align:center;
-background:#f4f4f4;
-padding:40px;
-}
-
-.container{
-background:white;
-padding:30px;
-border-radius:10px;
-width:300px;
-margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-h1{
-color:#2c3e50;
-}
-
-.prayer{
-margin:10px 0;
-font-size:18px;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>Horaires d'Adhan</h1>
-<input type="text" id="city" placeholder="Entrez votre ville">
-<button onclick="getPrayerTimes()">Afficher</button>
-
-<div id="prayers"></div>
-
-</div>
-
 <script>
 
 async function getPrayerTimes(){
@@ -67,11 +20,56 @@ document.getElementById("prayers").innerHTML = `
 <div class="prayer">Isha : ${timings.Isha}</div>
 `;
 
+startCountdown(timings);
+
+}
+
+function startCountdown(timings){
+
+let prayers = [
+["Fajr", timings.Fajr],
+["Dhuhr", timings.Dhuhr],
+["Asr", timings.Asr],
+["Maghrib", timings.Maghrib],
+["Isha", timings.Isha]
+];
+
+setInterval(()=>{
+
+let now = new Date();
+
+for(let i=0;i<prayers.length;i++){
+
+let [name,time] = prayers[i];
+
+let prayerTime = new Date();
+let parts = time.split(":");
+
+prayerTime.setHours(parts[0]);
+prayerTime.setMinutes(parts[1]);
+prayerTime.setSeconds(0);
+
+if(prayerTime > now){
+
+let diff = prayerTime - now;
+
+let hours = Math.floor(diff/1000/60/60);
+let minutes = Math.floor(diff/1000/60)%60;
+let seconds = Math.floor(diff/1000)%60;
+
+document.getElementById("nextPrayer").innerHTML =
+`Prochaine prière : ${name} dans ${hours}h ${minutes}m ${seconds}s`;
+
+break;
+
+}
+
+}
+
+},1000);
+
 }
 
 getPrayerTimes();
 
 </script>
-
-</body>
-</html>

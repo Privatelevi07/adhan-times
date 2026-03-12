@@ -16,7 +16,7 @@ body{
   background:white;
   padding:30px;
   border-radius:10px;
-  width:300px;
+  width:350px;
   margin:auto;
   box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
@@ -51,6 +51,22 @@ h1{
   font-size:16px;
   color:#e74c3c;
 }
+
+table{
+  margin-top:20px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td{
+  border:1px solid #ccc;
+  padding:5px;
+  font-size:14px;
+}
+
+table th{
+  background:#ecf0f1;
+}
 </style>
 
 </head>
@@ -65,37 +81,81 @@ h1{
 <div id="suggestions"></div>
 <button onclick="getPrayerTimes()">Afficher</button>
 
-<!-- Affichage des horaires -->
+<!-- Affichage des horaires principales -->
 <div id="prayers"></div>
 
 <!-- Compteur de la prochaine prière -->
 <h2 id="nextPrayer"></h2>
 
+<!-- Tableau comparatif -->
+<h2>Horaires selon différentes méthodes</h2>
+<table id="comparison">
+<tr>
+<th>Méthode</th>
+<th>Fajr</th>
+<th>Dhuhr</th>
+<th>Asr</th>
+<th>Maghrib</th>
+<th>Isha</th>
+</tr>
+</table>
+
 </div>
 
 <script>
-// Récupérer les horaires des prières
+// Récupérer les horaires des prières pour différentes méthodes
 async function getPrayerTimes(){
 
     let city = document.getElementById("city").value || "Paris";
     let country = "France";
 
-    let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=2`;
+    // Méthodes à comparer
+    let methods = [
+        {id:2, name:"ISNA"},
+        {id:3, name:"MWL"},
+        {id:4, name:"Umm al-Qura"},
+        {id:5, name:"Egypt"},
+        {id:7, name:"Tehran"},
+        {id:12, name:"UOIF"}
+    ];
 
-    let response = await fetch(url);
-    let data = await response.json();
+    let mainTimings = null;
+    let tableHTML = "";
 
-    let timings = data.data.timings;
+    for(let m of methods){
+        let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${m.id}`;
+        let response = await fetch(url);
+        let data = await response.json();
+        let timings = data.data.timings;
 
+        if(!mainTimings) mainTimings = timings;
+
+        tableHTML += `<tr>
+            <td>${m.name}</td>
+            <td>${timings.Fajr}</td>
+            <td>${timings.Dhuhr}</td>
+            <td>${timings.Asr}</td>
+            <td>${timings.Maghrib}</td>
+            <td>${timings.Isha}</td>
+        </tr>`;
+    }
+
+    // Afficher le tableau comparatif
+    document.getElementById("comparison").innerHTML = `<tr>
+        <th>Méthode</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th>
+    </tr>` + tableHTML;
+
+    // Afficher les horaires principales (première méthode)
     document.getElementById("prayers").innerHTML = `
-        <div class="prayer">Fajr : ${timings.Fajr}</div>
-        <div class="prayer">Dhuhr : ${timings.Dhuhr}</div>
-        <div class="prayer">Asr : ${timings.Asr}</div>
-        <div class="prayer">Maghrib : ${timings.Maghrib}</div>
-        <div class="prayer">Isha : ${timings.Isha}</div>
+        <div class="prayer">Fajr : ${mainTimings.Fajr}</div>
+        <div class="prayer">Dhuhr : ${mainTimings.Dhuhr}</div>
+        <div class="prayer">Asr : ${mainTimings.Asr}</div>
+        <div class="prayer">Maghrib : ${mainTimings.Maghrib}</div>
+        <div class="prayer">Isha : ${mainTimings.Isha}</div>
     `;
 
-    startCountdown(timings);
+    startCountdown(mainTimings);
+
 }
 
 // Compteur pour la prochaine prière
@@ -135,7 +195,7 @@ function startCountdown(timings){
     },1000);
 }
 
-// Auto-complétion des villes (toutes villes du monde)
+// Auto-complétion mondiale
 document.getElementById("city").addEventListener("input", async function(){
 
     let query = this.value;
@@ -158,7 +218,7 @@ document.getElementById("city").addEventListener("input", async function(){
 
 });
 
-// Sélectionner la ville depuis les suggestions
+// Sélectionner une ville depuis la liste de suggestions
 function selectCity(name){
     document.getElementById("city").value = name;
     document.getElementById("suggestions").innerHTML = "";
@@ -166,6 +226,7 @@ function selectCity(name){
 
 // Lancer la récupération des horaires au chargement
 getPrayerTimes();
+
 </script>
 
 </body>

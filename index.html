@@ -14,6 +14,12 @@ body{
   text-align:center;
   padding: 30px 10px;
   margin:0;
+  transition: background 0.5s, color 0.5s;
+}
+
+body.dark{
+  background: #2c3e50;
+  color: #f9f5f0;
 }
 
 .container{
@@ -23,6 +29,12 @@ body{
   padding: 25px 20px;
   border-radius: 15px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: background 0.5s, color 0.5s;
+}
+
+body.dark .container{
+  background: #34495e;
+  color:#f9f5f0;
 }
 
 h1{
@@ -32,12 +44,21 @@ h1{
   color:#2c3e50;
 }
 
+body.dark h1{
+  color:#f9f5f0;
+}
+
 input[type="text"]{
   width: 80%;
   padding:10px;
   border-radius: 10px;
   border: 1px solid #ccc;
   font-size:16px;
+}
+
+body.dark input[type="text"]{
+  background:#f9f5f0;
+  color:#2c3e50;
 }
 
 button{
@@ -51,8 +72,16 @@ button{
   font-size:16px;
 }
 
+body.dark button{
+  background:#e74c3c;
+}
+
 button:hover{
   background:#34495e;
+}
+
+body.dark button:hover{
+  background:#c0392b;
 }
 
 #suggestions{
@@ -63,6 +92,14 @@ button:hover{
   text-align:left;
   border-radius:10px;
   overflow:hidden;
+  position:absolute;
+  z-index:100;
+}
+
+body.dark #suggestions{
+  background:#34495e;
+  color:#f9f5f0;
+  border-color:#e74c3c;
 }
 
 .suggestion{
@@ -72,6 +109,10 @@ button:hover{
 
 .suggestion:hover{
   background:#f0f0f0;
+}
+
+body.dark .suggestion:hover{
+  background:#2c3e50;
 }
 
 .card{
@@ -84,7 +125,12 @@ button:hover{
   justify-content:space-between;
   align-items:center;
   font-size:18px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s, color 0.5s;
+}
+
+body.dark .card{
+  background:#3c5a72;
+  color:#f9f5f0;
 }
 
 .card span{
@@ -109,6 +155,10 @@ button:hover{
   color:#e74c3c;
 }
 
+body.dark #nextPrayer{
+  color:#f9f5f0;
+}
+
 table{
   margin-top:20px;
   width:100%;
@@ -129,6 +179,16 @@ table th{
 
 table tr:nth-child(even){
   background:#fdf6f0;
+}
+
+body.dark table th{
+  background:#2c3e50;
+  color:#f9f5f0;
+}
+
+body.dark table tr:nth-child(even){
+  background:#3c5a72;
+  color:#f9f5f0;
 }
 </style>
 </head>
@@ -161,10 +221,23 @@ table tr:nth-child(even){
 </div>
 
 <script>
+// MODE SOMBRE AUTOMATIQUE
+function setDarkMode(){
+    let hour = new Date().getHours();
+    if(hour >=18 || hour <6){
+        document.body.classList.add("dark");
+    }else{
+        document.body.classList.remove("dark");
+    }
+}
+setDarkMode();
+
 // Récupération horaires
 async function getPrayerTimes(){
-    let city = document.getElementById("city").value || "Paris";
-    let country = "France";
+    let cityInput = document.getElementById("city").value || "Paris";
+    let cityParts = cityInput.split(",");
+    let city = cityParts[0].trim();
+    let country = cityParts[1] ? cityParts[1].trim() : "France";
 
     let methods = [
         {id:2, name:"ISNA"},
@@ -200,7 +273,7 @@ async function getPrayerTimes(){
         <th>Méthode</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th>
     </tr>` + tableHTML;
 
-    // Horaires cartes avec icône
+    // Horaires cartes avec icônes
     document.getElementById("prayers").innerHTML = `
         <div class="card" id="card-Fajr">🕌 <span>Fajr</span> : ${mainTimings.Fajr}</div>
         <div class="card" id="card-Dhuhr">🕌 <span>Dhuhr</span> : ${mainTimings.Dhuhr}</div>
@@ -232,10 +305,10 @@ function startCountdown(timings){
 
         for(let i=0;i<prayers.length;i++){
             let [name,time] = prayers[i];
+            let [h,m] = time.split(":").map(Number);
             let prayerTime = new Date();
-            let parts = time.split(":");
-            prayerTime.setHours(parts[0]);
-            prayerTime.setMinutes(parts[1]);
+            prayerTime.setHours(h);
+            prayerTime.setMinutes(m);
             prayerTime.setSeconds(0);
 
             if(prayerTime > now){
@@ -252,7 +325,6 @@ function startCountdown(timings){
             }
         }
 
-        // Ajouter l'animation pulse sur la prochaine prière
         if(nextPrayerName){
             let card = document.getElementById(`card-${nextPrayerName}`);
             if(card) card.classList.add("pulse");
@@ -261,7 +333,7 @@ function startCountdown(timings){
     },1000);
 }
 
-// Auto-complétion Ville, Pays
+// Auto-complétion Ville, Pays, priorise capitales/connues
 document.getElementById("city").addEventListener("input", async function(){
     let query = this.value.trim();
     if(query.length < 1){
@@ -269,9 +341,16 @@ document.getElementById("city").addEventListener("input", async function(){
         return;
     }
 
-    let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
+    let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8`;
     let response = await fetch(url);
     let data = await response.json();
+
+    // Trier pour privilégier capitales ou grandes villes
+    data.sort((a,b)=>{
+        let importanceA = a.importance || 0;
+        let importanceB = b.importance || 0;
+        return importanceB - importanceA;
+    });
 
     let suggestions = "";
     data.forEach(place => {
@@ -289,6 +368,7 @@ function selectCity(name){
     document.getElementById("suggestions").innerHTML = "";
 }
 
+// Lancer au chargement
 getPrayerTimes();
 </script>
 

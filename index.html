@@ -7,7 +7,7 @@
 <style>
 body{font-family:'Arial',sans-serif;background:#f9f5f0;color:#2c3e50;text-align:center;padding:20px;margin:0;transition:0.5s;}
 body.dark{background:#2c3e50;color:#f9f5f0;}
-.container{max-width:500px;margin:auto;background:white;padding:25px 20px;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,0.1);transition:0.5s;}
+.container{max-width:600px;margin:auto;background:white;padding:25px 20px;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,0.1);transition:0.5s;}
 body.dark .container{background:#34495e;color:#f9f5f0;}
 h1{font-family:'Amiri',serif;font-size:32px;margin-bottom:20px;}
 input[type="text"]{width:70%;padding:8px;border-radius:10px;border:1px solid #ccc;font-size:16px;}
@@ -21,24 +21,24 @@ body.dark #suggestions{background:#34495e;color:#f9f5f0;border-color:#e74c3c;}
 .suggestion{padding:6px;cursor:pointer;}
 .suggestion:hover{background:#f0f0f0;}
 body.dark .suggestion:hover{background:#2c3e50;}
-.card{background:#fff5e6;padding:10px;margin:5px 0;border-radius:12px;display:flex;justify-content:space-between;align-items:center;font-size:15px;transition:0.3s;}
+.card{background:#fff5e6;padding:10px;margin:5px;border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:15px;transition:0.3s;cursor:pointer;}
 body.dark .card{background:#3c5a72;color:#f9f5f0;}
 .card span{font-weight:bold;color:#e74c3c;}
 .pulse{animation:pulse 1.2s infinite;}
 @keyframes pulse{0%{transform:scale(1);box-shadow:0 0 5px rgba(231,76,60,0.3);}50%{transform:scale(1.05);box-shadow:0 0 15px rgba(231,76,60,0.6);}100%{transform:scale(1);box-shadow:0 0 5px rgba(231,76,60,0.3);}}
 #nextPrayer{margin-top:8px;font-weight:bold;color:#e74c3c;font-size:14px;}
 body.dark #nextPrayer{color:#f9f5f0;}
-table{margin-top:12px;width:100%;border-collapse: collapse;}
+.tooltip {position: relative; display:inline-block;}
+.tooltip .tooltiptext{visibility:hidden;width:180px;background:#2c3e50;color:#f9f5f0;text-align:center;padding:5px;border-radius:6px;position:absolute;z-index:1;top:100%;left:50%;margin-left:-90px;font-size:12px;}
+.tooltip:hover .tooltiptext{visibility:visible;}
+#qiblaCanvas{margin-top:10px;border-radius:12px;background:#fff5e6;transition: background 0.5s;}
+body.dark #qiblaCanvas{background:#3c5a72;}
+table{margin-top:12px;width:100%;border-collapse: collapse;text-align:center;}
 table th, table td{border:1px solid #ccc;padding:4px;font-size:12px;}
 table th{background:#ecf0f1;}
 table tr:nth-child(even){background:#fdf6f0;}
 body.dark table th{background:#2c3e50;color:#f9f5f0;}
 body.dark table tr:nth-child(even){background:#3c5a72;color:#f9f5f0;}
-.tooltip {position: relative; display:inline-block; cursor:pointer;}
-.tooltip .tooltiptext{visibility:hidden;width:200px;background:#2c3e50;color:#f9f5f0;text-align:left;padding:5px;border-radius:6px;position:absolute;z-index:1;top:100%;left:50%;margin-left:-100px;font-size:12px;}
-.tooltip:hover .tooltiptext{visibility:visible;}
-#qiblaCanvas{margin-top:10px;border-radius:12px;background:#fff5e6;transition: background 0.5s;}
-body.dark #qiblaCanvas{background:#3c5a72;}
 </style>
 </head>
 <body>
@@ -61,10 +61,17 @@ body.dark #qiblaCanvas{background:#3c5a72;}
 <h2 id="nextPrayer"></h2>
 
 <h2>Méthodes de calcul</h2>
-<table id="methodTable"></table>
+<div id="methodsContainer" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;"></div>
 
 <h2>Calendrier mensuel</h2>
-<table id="calendar"><tr><th>Date</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th></tr></table>
+<table>
+<thead>
+<tr style="background:#f0f0f0;">
+<th>Date</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th>
+</tr>
+</thead>
+<tbody id="calendarBody"></tbody>
+</table>
 
 <h2>Qibla</h2>
 <canvas id="qiblaCanvas" width="200" height="200"></canvas>
@@ -103,31 +110,41 @@ function renderFavorites(){let favs=JSON.parse(localStorage.getItem("favorites")
 function useFavorite(c){document.getElementById("city").value=c; getPrayerTimes();}
 
 // === MÉTHODES DE CALCUL ===
-let methods=[{id:2,name:"ISNA",percent:"25%",info:"Utilisée principalement en Amérique du Nord"},
-             {id:3,name:"MWL",percent:"30%",info:"Europe & monde"},
-             {id:4,name:"Umm al-Qura",percent:"15%",info:"Arabie Saoudite"},
-             {id:5,name:"Egypt",percent:"10%",info:"Égypte"},
-             {id:7,name:"Tehran",percent:"5%",info:"Iran"},
-             {id:12,name:"UOIF",percent:"15%",info:"France & Europe"}];
-function renderMethodTable(){let html="<tr><th>Méthode</th><th>% Utilisation</th></tr>"; methods.forEach(m=>html+=`<tr><td class="tooltip">${m.name}<span class="tooltiptext">${m.info}</span></td><td>${m.percent}</td></tr>`); document.getElementById("methodTable").innerHTML=html;}
-renderMethodTable();
-
-// === CHRONO COMPACT ===
-function startCountdown(t){
-  let prayers=[["Fajr",t.Fajr],["Dhuhr",t.Dhuhr],["Asr",t.Asr],["Maghrib",t.Maghrib],["Isha",t.Isha]];
-  setInterval(()=>{
-    let now=new Date(),next=null; prayers.forEach(p=>document.getElementById(`card-${p[0]}`).classList.remove("pulse"));
-    for(let i=0;i<prayers.length;i++){
-      let [name,time]=prayers[i]; let [h,m]=time.split(":").map(Number); let pt=new Date(); pt.setHours(h); pt.setMinutes(m); pt.setSeconds(0);
-      if(pt>now){let diff=pt-now; let hh=Math.floor(diff/1000/3600); let mm=Math.floor(diff/1000/60)%60;
-      document.getElementById("nextPrayer").innerHTML=`Prochaine prière : ${name} ${hh}h ${mm}m`;
-      document.getElementById(`card-${name}`).classList.add("pulse"); next=name; break;}
-    }
-    if(next) notifyPrayer(next);
-  },1000);
+const methods = [
+  {id:2,name:"ISNA",percent:"25%",info:"Utilisée principalement en Amérique du Nord"},
+  {id:3,name:"MWL",percent:"30%",info:"Europe & monde"},
+  {id:4,name:"Umm al-Qura",percent:"15%",info:"Arabie Saoudite"},
+  {id:5,name:"Egypt",percent:"10%",info:"Égypte"},
+  {id:7,name:"Tehran",percent:"5%",info:"Iran"},
+  {id:12,name:"UOIF",percent:"15%",info:"France & Europe"}
+];
+function renderMethods() {
+  const container = document.getElementById("methodsContainer");
+  container.innerHTML = "";
+  methods.forEach(m => {
+    const card = document.createElement("div");
+    card.className = "card tooltip";
+    card.style.width = "140px";
+    card.innerHTML = `<span>${m.name}</span><span>${m.percent}</span><span class="tooltiptext">${m.info}</span>`;
+    container.appendChild(card);
+  });
 }
+renderMethods();
 
-// Les fonctions getPrayerTimes(), renderCalendar(), renderQibla(), detectLocation() reprennent la version complète précédente
+// === CALENDRIER MENSUEL ===
+async function renderCalendar(city="Paris", country="France", method=2){
+  const url = `https://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=${method}&month=${new Date().getMonth()+1}&year=${new Date().getFullYear()}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const tbody = document.getElementById("calendarBody");
+  tbody.innerHTML = "";
+  data.data.forEach(day=>{
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${day.date.readable}</td><td>${day.timings.Fajr}</td><td>${day.timings.Dhuhr}</td><td>${day.timings.Asr}</td><td>${day.timings.Maghrib}</td><td>${day.timings.Isha}</td>`;
+    tbody.appendChild(row);
+  });
+}
+renderCalendar();
 </script>
 </body>
 </html>

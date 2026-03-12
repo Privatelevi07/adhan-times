@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Horaires de prière</title>
-
+<title>Horaires de prière Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 
 <style>
@@ -12,18 +11,16 @@ body{
   background: #f9f5f0;
   color: #2c3e50;
   text-align:center;
-  padding: 30px 10px;
+  padding: 20px;
   margin:0;
   transition: background 0.5s, color 0.5s;
 }
-
 body.dark{
-  background: #2c3e50;
-  color: #f9f5f0;
+  background:#2c3e50;
+  color:#f9f5f0;
 }
-
 .container{
-  max-width: 400px;
+  max-width: 450px;
   margin:auto;
   background:white;
   padding: 25px 20px;
@@ -31,59 +28,44 @@ body.dark{
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   transition: background 0.5s, color 0.5s;
 }
-
 body.dark .container{
-  background: #34495e;
+  background:#34495e;
   color:#f9f5f0;
 }
-
 h1{
   font-family: 'Amiri', serif;
   font-size: 32px;
   margin-bottom:20px;
-  color:#2c3e50;
 }
-
-body.dark h1{
-  color:#f9f5f0;
-}
-
 input[type="text"]{
-  width: 80%;
-  padding:10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  width:70%;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid #ccc;
   font-size:16px;
 }
-
 body.dark input[type="text"]{
   background:#f9f5f0;
   color:#2c3e50;
 }
-
 button{
-  padding:10px 15px;
+  padding:8px 12px;
   margin-left:5px;
   border:none;
   border-radius:10px;
   background:#2c3e50;
   color:white;
   cursor:pointer;
-  font-size:16px;
 }
-
 body.dark button{
   background:#e74c3c;
 }
-
 button:hover{
   background:#34495e;
 }
-
 body.dark button:hover{
   background:#c0392b;
 }
-
 #suggestions{
   background:white;
   border:1px solid #ccc;
@@ -95,280 +77,287 @@ body.dark button:hover{
   position:absolute;
   z-index:100;
 }
-
 body.dark #suggestions{
   background:#34495e;
   color:#f9f5f0;
   border-color:#e74c3c;
 }
-
 .suggestion{
   padding:8px;
   cursor:pointer;
 }
-
 .suggestion:hover{
   background:#f0f0f0;
 }
-
 body.dark .suggestion:hover{
   background:#2c3e50;
 }
-
 .card{
   background:#fff5e6;
-  padding:15px;
-  margin:10px 0;
-  border-radius:15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  padding:12px;
+  margin:8px 0;
+  border-radius:12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  font-size:18px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s, color 0.5s;
+  font-size:16px;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-
 body.dark .card{
   background:#3c5a72;
   color:#f9f5f0;
 }
-
 .card span{
   font-weight:bold;
   color:#e74c3c;
 }
-
 .pulse{
-  animation: pulse 1.2s infinite;
+  animation:pulse 1.2s infinite;
 }
-
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 5px rgba(231,76,60,0.3); }
-  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231,76,60,0.6); }
-  100% { transform: scale(1); box-shadow: 0 0 5px rgba(231,76,60,0.3); }
+@keyframes pulse{
+  0%{transform:scale(1); box-shadow:0 0 5px rgba(231,76,60,0.3);}
+  50%{transform:scale(1.05); box-shadow:0 0 15px rgba(231,76,60,0.6);}
+  100%{transform:scale(1); box-shadow:0 0 5px rgba(231,76,60,0.3);}
 }
-
 #nextPrayer{
-  margin-top:15px;
-  font-size:16px;
+  margin-top:10px;
   font-weight:bold;
   color:#e74c3c;
 }
-
 body.dark #nextPrayer{
   color:#f9f5f0;
 }
-
 table{
-  margin-top:20px;
+  margin-top:15px;
   width:100%;
   border-collapse: collapse;
-  border-radius: 10px;
-  overflow:hidden;
 }
-
 table th, table td{
   border:1px solid #ccc;
-  padding:6px;
-  font-size:14px;
+  padding:5px;
+  font-size:13px;
 }
-
 table th{
   background:#ecf0f1;
 }
-
 table tr:nth-child(even){
   background:#fdf6f0;
 }
-
 body.dark table th{
   background:#2c3e50;
   color:#f9f5f0;
 }
-
 body.dark table tr:nth-child(even){
   background:#3c5a72;
   color:#f9f5f0;
+}
+#qiblaCanvas{
+  margin-top:10px;
+  border-radius:12px;
+  background:#fff5e6;
+  transition: background 0.5s;
+}
+body.dark #qiblaCanvas{
+  background:#3c5a72;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
+<h1>Horaires d'Adhan Pro</h1>
 
-<h1>Horaires d'Adhan</h1>
+<!-- Mode sombre / clair -->
+<button onclick="toggleTheme()">Changer thème</button>
 
+<!-- Langue -->
+<button onclick="setLanguage('fr')">FR</button>
+<button onclick="setLanguage('en')">EN</button>
+<button onclick="setLanguage('ar')">AR</button>
+
+<br><br>
+
+<!-- Recherche Ville -->
 <input type="text" id="city" placeholder="Entrez une ville">
 <div id="suggestions"></div>
 <button onclick="getPrayerTimes()">Afficher</button>
+<button onclick="detectLocation()">Localiser</button>
+
+<div id="favorites"></div>
 
 <div id="prayers"></div>
 
 <h2 id="nextPrayer"></h2>
 
-<h2>Horaires selon différentes méthodes</h2>
-<table id="comparison">
-<tr>
-<th>Méthode</th>
-<th>Fajr</th>
-<th>Dhuhr</th>
-<th>Asr</th>
-<th>Maghrib</th>
-<th>Isha</th>
-</tr>
+<h2>Méthodes de calcul</h2>
+<select id="methodSelect">
+  <option value="2">ISNA</option>
+  <option value="3">MWL</option>
+  <option value="4">Umm al-Qura</option>
+  <option value="5">Egypt</option>
+  <option value="7">Tehran</option>
+  <option value="12">UOIF</option>
+</select>
+<br><br>
+
+<h2>Calendrier mensuel</h2>
+<table id="calendar">
+<tr><th>Date</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th></tr>
 </table>
+
+<h2>Qibla</h2>
+<canvas id="qiblaCanvas" width="200" height="200"></canvas>
 
 </div>
 
 <script>
-// MODE SOMBRE AUTOMATIQUE
+// Mode sombre automatique
 function setDarkMode(){
-    let hour = new Date().getHours();
-    if(hour >=18 || hour <6){
-        document.body.classList.add("dark");
-    }else{
-        document.body.classList.remove("dark");
-    }
+  let hour=new Date().getHours();
+  if(hour>=18 || hour<6) document.body.classList.add("dark");
+  else document.body.classList.remove("dark");
 }
 setDarkMode();
+function toggleTheme(){document.body.classList.toggle("dark");}
 
-// Récupération horaires
-async function getPrayerTimes(){
-    let cityInput = document.getElementById("city").value || "Paris";
-    let cityParts = cityInput.split(",");
-    let city = cityParts[0].trim();
-    let country = cityParts[1] ? cityParts[1].trim() : "France";
+// Multi-langues
+let lang="fr";
+function setLanguage(l){lang=l;updateText();}
+function updateText(){ /* à compléter selon besoin */}
 
-    let methods = [
-        {id:2, name:"ISNA"},
-        {id:3, name:"MWL"},
-        {id:4, name:"Umm al-Qura"},
-        {id:5, name:"Egypt"},
-        {id:7, name:"Tehran"},
-        {id:12, name:"UOIF"}
-    ];
-
-    let mainTimings = null;
-    let tableHTML = "";
-
-    for(let m of methods){
-        let url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${m.id}`;
-        let response = await fetch(url);
-        let data = await response.json();
-        let timings = data.data.timings;
-
-        if(!mainTimings) mainTimings = timings;
-
-        tableHTML += `<tr>
-            <td>${m.name}</td>
-            <td>${timings.Fajr}</td>
-            <td>${timings.Dhuhr}</td>
-            <td>${timings.Asr}</td>
-            <td>${timings.Maghrib}</td>
-            <td>${timings.Isha}</td>
-        </tr>`;
-    }
-
-    document.getElementById("comparison").innerHTML = `<tr>
-        <th>Méthode</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th>
-    </tr>` + tableHTML;
-
-    // Horaires cartes avec icônes
-    document.getElementById("prayers").innerHTML = `
-        <div class="card" id="card-Fajr">🕌 <span>Fajr</span> : ${mainTimings.Fajr}</div>
-        <div class="card" id="card-Dhuhr">🕌 <span>Dhuhr</span> : ${mainTimings.Dhuhr}</div>
-        <div class="card" id="card-Asr">🕌 <span>Asr</span> : ${mainTimings.Asr}</div>
-        <div class="card" id="card-Maghrib">🕌 <span>Maghrib</span> : ${mainTimings.Maghrib}</div>
-        <div class="card" id="card-Isha">🕌 <span>Isha</span> : ${mainTimings.Isha}</div>
-    `;
-
-    startCountdown(mainTimings);
+// Notifications Adhan
+if("Notification" in window && Notification.permission!=="granted") Notification.requestPermission();
+function notifyPrayer(name){
+  if(Notification.permission==="granted") new Notification(`Prochaine prière : ${name}`,{body:`Il est temps pour ${name}`,icon:"mosque_icon.png"});
+  let adhan=new Audio("adhan.mp3"); adhan.play().catch(e=>console.log("Audio refusé"));
 }
 
-// Compteur prochaine prière + animation
-function startCountdown(timings){
-    let prayers = [
-        ["Fajr", timings.Fajr],
-        ["Dhuhr", timings.Dhuhr],
-        ["Asr", timings.Asr],
-        ["Maghrib", timings.Maghrib],
-        ["Isha", timings.Isha]
-    ];
-
-    setInterval(()=>{
-        let now = new Date();
-        let nextPrayerName = null;
-
-        prayers.forEach(p=>{
-            document.getElementById(`card-${p[0]}`).classList.remove("pulse");
-        });
-
-        for(let i=0;i<prayers.length;i++){
-            let [name,time] = prayers[i];
-            let [h,m] = time.split(":").map(Number);
-            let prayerTime = new Date();
-            prayerTime.setHours(h);
-            prayerTime.setMinutes(m);
-            prayerTime.setSeconds(0);
-
-            if(prayerTime > now){
-                let diff = prayerTime - now;
-                let hours = Math.floor(diff/1000/60/60);
-                let minutes = Math.floor(diff/1000/60)%60;
-                let seconds = Math.floor(diff/1000)%60;
-
-                document.getElementById("nextPrayer").innerHTML =
-                `Prochaine prière : ${name} dans ${hours}h ${minutes}m ${seconds}s`;
-
-                nextPrayerName = name;
-                break;
-            }
-        }
-
-        if(nextPrayerName){
-            let card = document.getElementById(`card-${nextPrayerName}`);
-            if(card) card.classList.add("pulse");
-        }
-
-    },1000);
+// Localisation
+function detectLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      let lat=pos.coords.latitude, lon=pos.coords.longitude;
+      let response=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+      let data=await response.json();
+      let city=data.address.city||data.address.town||data.address.village;
+      let country=data.address.country;
+      document.getElementById("city").value=city+", "+country;
+      getPrayerTimes();
+    });
+  }else alert("Géolocalisation non supportée");
 }
 
-// Auto-complétion Ville, Pays, priorise capitales/connues
+// Barre auto-complétion
 document.getElementById("city").addEventListener("input", async function(){
-    let query = this.value.trim();
-    if(query.length < 1){
-        document.getElementById("suggestions").innerHTML = "";
-        return;
-    }
-
-    let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8`;
-    let response = await fetch(url);
-    let data = await response.json();
-
-    // Trier pour privilégier capitales ou grandes villes
-    data.sort((a,b)=>{
-        let importanceA = a.importance || 0;
-        let importanceB = b.importance || 0;
-        return importanceB - importanceA;
-    });
-
-    let suggestions = "";
-    data.forEach(place => {
-        let cityName = place.address.city || place.address.town || place.address.village || place.address.hamlet || place.display_name.split(",")[0];
-        let countryName = place.address.country || "";
-        let display = cityName + ", " + countryName;
-        suggestions += `<div class="suggestion" onclick="selectCity('${display}')">${display}</div>`;
-    });
-
-    document.getElementById("suggestions").innerHTML = suggestions;
+  let query=this.value.trim();
+  if(query.length<1){document.getElementById("suggestions").innerHTML=""; return;}
+  let url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8`;
+  let response=await fetch(url);
+  let data=await response.json();
+  data.sort((a,b)=> (b.importance||0)-(a.importance||0));
+  let suggestions="";
+  data.forEach(place=>{
+    let cityName=place.address.city||place.address.town||place.address.village||place.address.hamlet||place.display_name.split(",")[0];
+    let countryName=place.address.country||"";
+    suggestions+=`<div class="suggestion" onclick="selectCity('${cityName}, ${countryName}')">${cityName}, ${countryName}</div>`;
+  });
+  document.getElementById("suggestions").innerHTML=suggestions;
 });
-
 function selectCity(name){
-    document.getElementById("city").value = name;
-    document.getElementById("suggestions").innerHTML = "";
+  document.getElementById("city").value=name;
+  document.getElementById("suggestions").innerHTML="";
+  addFavorite(name);
 }
 
-// Lancer au chargement
+// Favoris
+function addFavorite(city){
+  let favs=JSON.parse(localStorage.getItem("favorites")||"[]");
+  if(!favs.includes(city)){favs.push(city); localStorage.setItem("favorites",JSON.stringify(favs)); renderFavorites();}
+}
+function renderFavorites(){
+  let favs=JSON.parse(localStorage.getItem("favorites")||"[]");
+  let html="<h3>Villes favorites :</h3>";
+  favs.forEach(c=> html+=`<div>${c} <button onclick="useFavorite('${c}')">Afficher</button></div>`);
+  document.getElementById("favorites").innerHTML=html;
+}
+function useFavorite(c){document.getElementById("city").value=c; getPrayerTimes();}
+
+// Récupérer horaires et calendrier
+async function getPrayerTimes(){
+  let cityInput=document.getElementById("city").value||"Paris, France";
+  let parts=cityInput.split(",");
+  let city=parts[0].trim(); let country=parts[1]?parts[1].trim():"France";
+  let method=document.getElementById("methodSelect").value;
+  // Horaires aujourd'hui
+  let url=`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}`;
+  let resp=await fetch(url);
+  let data=await resp.json();
+  let t=data.data.timings;
+  // Affichage cartes
+  document.getElementById("prayers").innerHTML=`
+    <div class="card" id="card-Fajr">🕌 <span>Fajr</span> : ${t.Fajr}</div>
+    <div class="card" id="card-Dhuhr">🕌 <span>Dhuhr</span> : ${t.Dhuhr}</div>
+    <div class="card" id="card-Asr">🕌 <span>Asr</span> : ${t.Asr}</div>
+    <div class="card" id="card-Maghrib">🕌 <span>Maghrib</span> : ${t.Maghrib}</div>
+    <div class="card" id="card-Isha">🕌 <span>Isha</span> : ${t.Isha}</div>
+  `;
+  startCountdown(t);
+  renderCalendar(city,country,method);
+  renderQibla(city,country);
+}
+
+// Countdown prochaine prière
+function startCountdown(t){
+  let prayers=[["Fajr",t.Fajr],["Dhuhr",t.Dhuhr],["Asr",t.Asr],["Maghrib",t.Maghrib],["Isha",t.Isha]];
+  setInterval(()=>{
+    let now=new Date(); let next=null;
+    prayers.forEach(p=>document.getElementById(`card-${p[0]}`).classList.remove("pulse"));
+    for(let i=0;i<prayers.length;i++){
+      let [name,time]=prayers[i];
+      let [h,m]=time.split(":").map(Number);
+      let pt=new Date(); pt.setHours(h); pt.setMinutes(m); pt.setSeconds(0);
+      if(pt>now){
+        let diff=pt-now; let hh=Math.floor(diff/1000/3600); let mm=Math.floor(diff/1000/60)%60; let ss=Math.floor(diff/1000)%60;
+        document.getElementById("nextPrayer").innerHTML=`Prochaine prière : ${name} dans ${hh}h ${mm}m ${ss}s`;
+        document.getElementById(`card-${name}`).classList.add("pulse");
+        next=name; break;
+      }
+    }
+    if(next) notifyPrayer(next);
+  },1000);
+}
+
+// Calendrier du mois
+async function renderCalendar(city,country,method){
+  let now=new Date(); let month=now.getMonth()+1; let year=now.getFullYear();
+  let url=`https://api.aladhan.com/v1/calendarByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}&month=${month}&year=${year}`;
+  let resp=await fetch(url); let data=await resp.json();
+  let html="<tr><th>Date</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th></tr>";
+  data.data.forEach(d=>{
+    html+=`<tr><td>${d.date.readable}</td><td>${d.timings.Fajr}</td><td>${d.timings.Dhuhr}</td><td>${d.timings.Asr}</td><td>${d.timings.Maghrib}</td><td>${d.timings.Isha}</td></tr>`;
+  });
+  document.getElementById("calendar").innerHTML=html;
+}
+
+// Qibla boussole
+async function renderQibla(city,country){
+  let url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city+", "+country)}&format=json&limit=1`;
+  let resp=await fetch(url); let data=await resp.json();
+  if(!data[0]) return;
+  let lat=parseFloat(data[0].lat), lon=parseFloat(data[0].lon);
+  let kaabaLat=21.4225, kaabaLon=39.8262;
+  let phiK=kaabaLat*Math.PI/180, lambdaK=kaabaLon*Math.PI/180, phi=lat*Math.PI/180, lambda=lon*Math.PI/180;
+  let deltaLambda=lambdaK-lambda, x=Math.sin(deltaLambda), y=Math.cos(phi)*Math.tan(phiK)-Math.sin(phi)*Math.cos(deltaLambda);
+  let theta=(Math.atan2(x,y)*180/Math.PI+360)%360;
+  let canvas=document.getElementById("qiblaCanvas"); let ctx=canvas.getContext("2d"); ctx.clearRect(0,0,200,200);
+  ctx.fillStyle="red"; ctx.strokeStyle="black"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(100,100,80,0,2*Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(100,100); ctx.lineTo(100+80*Math.sin(theta*Math.PI/180),100-80*Math.cos(theta*Math.PI/180)); ctx.stroke();
+  ctx.fillText("Qibla",90,100);
+}
+
+// Initialisation
+renderFavorites();
 getPrayerTimes();
 </script>
 

@@ -38,6 +38,8 @@ font-size:18px;
 <div class="container">
 
 <h1>Horaires d'Adhan</h1>
+<input type="text" id="city" placeholder="Entrez votre ville">
+<button onclick="getPrayerTimes()">Afficher</button>
 
 <div id="prayers"></div>
 
@@ -47,7 +49,7 @@ font-size:18px;
 
 async function getPrayerTimes(){
 
-let city = "Paris";
+let city = document.getElementById("city").value || "Paris";
 let country = "France";
 
 let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=2`;

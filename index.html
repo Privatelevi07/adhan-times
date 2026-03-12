@@ -175,7 +175,7 @@ async function getPrayerTimes(){
     let tableHTML = "";
 
     for(let m of methods){
-        let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${m.id}`;
+        let url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${m.id}`;
         let response = await fetch(url);
         let data = await response.json();
         let timings = data.data.timings;
@@ -244,21 +244,24 @@ function startCountdown(timings){
     },1000);
 }
 
-// Auto-complétion mondiale
+// Auto-complétion mondiale : Ville, Pays, tolérance aux erreurs
 document.getElementById("city").addEventListener("input", async function(){
-    let query = this.value;
+    let query = this.value.trim();
     if(query.length < 1){
         document.getElementById("suggestions").innerHTML = "";
         return;
     }
 
-    let url = `https://nominatim.openstreetmap.org/search?city=${query}&format=json&limit=5`;
+    let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
     let response = await fetch(url);
     let data = await response.json();
 
     let suggestions = "";
     data.forEach(place => {
-        suggestions += `<div class="suggestion" onclick="selectCity('${place.display_name}')">${place.display_name}</div>`;
+        let cityName = place.address.city || place.address.town || place.address.village || place.address.hamlet || place.display_name.split(",")[0];
+        let countryName = place.address.country || "";
+        let display = cityName + ", " + countryName;
+        suggestions += `<div class="suggestion" onclick="selectCity('${display}')">${display}</div>`;
     });
 
     document.getElementById("suggestions").innerHTML = suggestions;
@@ -272,7 +275,6 @@ function selectCity(name){
 
 // Lancer la récupération dès le chargement
 getPrayerTimes();
-
 </script>
 
 </body>

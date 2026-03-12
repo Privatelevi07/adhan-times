@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Horaires de prière</title>
 
+<style>
+body{
+font-family: Arial;
+text-align:center;
+background:#f4f4f4;
+padding:40px;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+width:300px;
+margin:auto;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+color:#2c3e50;
+}
+
+.prayer{
+margin:10px 0;
+font-size:18px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Horaires d'Adhan</h1>
+
+<div id="prayers"></div>
+
+</div>
+
+<script>
+
+async function getPrayerTimes(){
+
+let city = "Paris";
+let country = "France";
+
+let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=2`;
+
+let response = await fetch(url);
+let data = await response.json();
+
+let timings = data.data.timings;
+
+document.getElementById("prayers").innerHTML = `
+<div class="prayer">Fajr : ${timings.Fajr}</div>
+<div class="prayer">Dhuhr : ${timings.Dhuhr}</div>
+<div class="prayer">Asr : ${timings.Asr}</div>
+<div class="prayer">Maghrib : ${timings.Maghrib}</div>
+<div class="prayer">Isha : ${timings.Isha}</div>
+`;
+
+}
+
+getPrayerTimes();
+
+</script>
+
+</body>
+</html>

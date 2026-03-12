@@ -1,75 +1,172 @@
-<script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Horaires de prière</title>
 
+<style>
+body{
+  font-family: Arial, sans-serif;
+  text-align:center;
+  background:#f4f4f4;
+  padding:40px;
+}
+
+.container{
+  background:white;
+  padding:30px;
+  border-radius:10px;
+  width:300px;
+  margin:auto;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+  color:#2c3e50;
+}
+
+.prayer{
+  margin:10px 0;
+  font-size:18px;
+}
+
+#suggestions{
+  background:white;
+  border:1px solid #ccc;
+  max-width:300px;
+  margin:auto;
+}
+
+.suggestion{
+  padding:8px;
+  cursor:pointer;
+}
+
+.suggestion:hover{
+  background:#f0f0f0;
+}
+
+#nextPrayer{
+  margin-top:20px;
+  font-size:16px;
+  color:#e74c3c;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Horaires d'Adhan</h1>
+
+<!-- Barre de recherche avec auto-complétion -->
+<input type="text" id="city" placeholder="Entrez une ville">
+<div id="suggestions"></div>
+<button onclick="getPrayerTimes()">Afficher</button>
+
+<!-- Affichage des horaires -->
+<div id="prayers"></div>
+
+<!-- Compteur de la prochaine prière -->
+<h2 id="nextPrayer"></h2>
+
+</div>
+
+<script>
+// Récupérer les horaires des prières
 async function getPrayerTimes(){
 
-let city = document.getElementById("city").value || "Paris";
-let country = "France";
+    let city = document.getElementById("city").value || "Paris";
+    let country = "France";
 
-let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=2`;
+    let url = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=2`;
 
-let response = await fetch(url);
-let data = await response.json();
+    let response = await fetch(url);
+    let data = await response.json();
 
-let timings = data.data.timings;
+    let timings = data.data.timings;
 
-document.getElementById("prayers").innerHTML = `
-<div class="prayer">Fajr : ${timings.Fajr}</div>
-<div class="prayer">Dhuhr : ${timings.Dhuhr}</div>
-<div class="prayer">Asr : ${timings.Asr}</div>
-<div class="prayer">Maghrib : ${timings.Maghrib}</div>
-<div class="prayer">Isha : ${timings.Isha}</div>
-`;
+    document.getElementById("prayers").innerHTML = `
+        <div class="prayer">Fajr : ${timings.Fajr}</div>
+        <div class="prayer">Dhuhr : ${timings.Dhuhr}</div>
+        <div class="prayer">Asr : ${timings.Asr}</div>
+        <div class="prayer">Maghrib : ${timings.Maghrib}</div>
+        <div class="prayer">Isha : ${timings.Isha}</div>
+    `;
 
-startCountdown(timings);
-
+    startCountdown(timings);
 }
 
+// Compteur pour la prochaine prière
 function startCountdown(timings){
 
-let prayers = [
-["Fajr", timings.Fajr],
-["Dhuhr", timings.Dhuhr],
-["Asr", timings.Asr],
-["Maghrib", timings.Maghrib],
-["Isha", timings.Isha]
-];
+    let prayers = [
+        ["Fajr", timings.Fajr],
+        ["Dhuhr", timings.Dhuhr],
+        ["Asr", timings.Asr],
+        ["Maghrib", timings.Maghrib],
+        ["Isha", timings.Isha]
+    ];
 
-setInterval(()=>{
+    setInterval(()=>{
+        let now = new Date();
 
-let now = new Date();
+        for(let i=0;i<prayers.length;i++){
+            let [name,time] = prayers[i];
+            let prayerTime = new Date();
+            let parts = time.split(":");
 
-for(let i=0;i<prayers.length;i++){
+            prayerTime.setHours(parts[0]);
+            prayerTime.setMinutes(parts[1]);
+            prayerTime.setSeconds(0);
 
-let [name,time] = prayers[i];
+            if(prayerTime > now){
+                let diff = prayerTime - now;
+                let hours = Math.floor(diff/1000/60/60);
+                let minutes = Math.floor(diff/1000/60)%60;
+                let seconds = Math.floor(diff/1000)%60;
 
-let prayerTime = new Date();
-let parts = time.split(":");
-
-prayerTime.setHours(parts[0]);
-prayerTime.setMinutes(parts[1]);
-prayerTime.setSeconds(0);
-
-if(prayerTime > now){
-
-let diff = prayerTime - now;
-
-let hours = Math.floor(diff/1000/60/60);
-let minutes = Math.floor(diff/1000/60)%60;
-let seconds = Math.floor(diff/1000)%60;
-
-document.getElementById("nextPrayer").innerHTML =
-`Prochaine prière : ${name} dans ${hours}h ${minutes}m ${seconds}s`;
-
-break;
-
+                document.getElementById("nextPrayer").innerHTML =
+                `Prochaine prière : ${name} dans ${hours}h ${minutes}m ${seconds}s`;
+                break;
+            }
+        }
+    },1000);
 }
 
+// Auto-complétion des villes (toutes villes du monde)
+document.getElementById("city").addEventListener("input", async function(){
+
+    let query = this.value;
+
+    if(query.length < 1){
+        document.getElementById("suggestions").innerHTML = "";
+        return;
+    }
+
+    let url = `https://nominatim.openstreetmap.org/search?city=${query}&format=json&limit=5`;
+    let response = await fetch(url);
+    let data = await response.json();
+
+    let suggestions = "";
+    data.forEach(place => {
+        suggestions += `<div class="suggestion" onclick="selectCity('${place.display_name}')">${place.display_name}</div>`;
+    });
+
+    document.getElementById("suggestions").innerHTML = suggestions;
+
+});
+
+// Sélectionner la ville depuis les suggestions
+function selectCity(name){
+    document.getElementById("city").value = name;
+    document.getElementById("suggestions").innerHTML = "";
 }
 
-},1000);
-
-}
-
+// Lancer la récupération des horaires au chargement
 getPrayerTimes();
-
 </script>
+
+</body>
+</html>

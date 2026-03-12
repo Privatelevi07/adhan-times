@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Horaires de prière</title>
 
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 
 <style>
@@ -85,11 +84,22 @@ button:hover{
   justify-content:space-between;
   align-items:center;
   font-size:18px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card span{
   font-weight:bold;
   color:#e74c3c;
+}
+
+.pulse{
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(231,76,60,0.3); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231,76,60,0.6); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(231,76,60,0.3); }
 }
 
 #nextPrayer{
@@ -124,23 +134,18 @@ table tr:nth-child(even){
 </head>
 
 <body>
-
 <div class="container">
 
 <h1>Horaires d'Adhan</h1>
 
-<!-- Barre de recherche avec auto-complétion -->
 <input type="text" id="city" placeholder="Entrez une ville">
 <div id="suggestions"></div>
 <button onclick="getPrayerTimes()">Afficher</button>
 
-<!-- Cartes horaires -->
 <div id="prayers"></div>
 
-<!-- Compteur -->
 <h2 id="nextPrayer"></h2>
 
-<!-- Tableau comparatif -->
 <h2>Horaires selon différentes méthodes</h2>
 <table id="comparison">
 <tr>
@@ -156,9 +161,8 @@ table tr:nth-child(even){
 </div>
 
 <script>
-// Récupérer les horaires selon différentes méthodes
+// Récupération horaires
 async function getPrayerTimes(){
-
     let city = document.getElementById("city").value || "Paris";
     let country = "France";
 
@@ -192,24 +196,23 @@ async function getPrayerTimes(){
         </tr>`;
     }
 
-    // Afficher tableau comparatif
     document.getElementById("comparison").innerHTML = `<tr>
         <th>Méthode</th><th>Fajr</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th>
     </tr>` + tableHTML;
 
-    // Afficher horaires principales sous forme de cartes
+    // Horaires cartes avec icône
     document.getElementById("prayers").innerHTML = `
-        <div class="card"><span>Fajr</span> : ${mainTimings.Fajr}</div>
-        <div class="card"><span>Dhuhr</span> : ${mainTimings.Dhuhr}</div>
-        <div class="card"><span>Asr</span> : ${mainTimings.Asr}</div>
-        <div class="card"><span>Maghrib</span> : ${mainTimings.Maghrib}</div>
-        <div class="card"><span>Isha</span> : ${mainTimings.Isha}</div>
+        <div class="card" id="card-Fajr">🕌 <span>Fajr</span> : ${mainTimings.Fajr}</div>
+        <div class="card" id="card-Dhuhr">🕌 <span>Dhuhr</span> : ${mainTimings.Dhuhr}</div>
+        <div class="card" id="card-Asr">🕌 <span>Asr</span> : ${mainTimings.Asr}</div>
+        <div class="card" id="card-Maghrib">🕌 <span>Maghrib</span> : ${mainTimings.Maghrib}</div>
+        <div class="card" id="card-Isha">🕌 <span>Isha</span> : ${mainTimings.Isha}</div>
     `;
 
     startCountdown(mainTimings);
 }
 
-// Compteur prochaine prière
+// Compteur prochaine prière + animation
 function startCountdown(timings){
     let prayers = [
         ["Fajr", timings.Fajr],
@@ -221,6 +224,11 @@ function startCountdown(timings){
 
     setInterval(()=>{
         let now = new Date();
+        let nextPrayerName = null;
+
+        prayers.forEach(p=>{
+            document.getElementById(`card-${p[0]}`).classList.remove("pulse");
+        });
 
         for(let i=0;i<prayers.length;i++){
             let [name,time] = prayers[i];
@@ -238,13 +246,22 @@ function startCountdown(timings){
 
                 document.getElementById("nextPrayer").innerHTML =
                 `Prochaine prière : ${name} dans ${hours}h ${minutes}m ${seconds}s`;
+
+                nextPrayerName = name;
                 break;
             }
         }
+
+        // Ajouter l'animation pulse sur la prochaine prière
+        if(nextPrayerName){
+            let card = document.getElementById(`card-${nextPrayerName}`);
+            if(card) card.classList.add("pulse");
+        }
+
     },1000);
 }
 
-// Auto-complétion mondiale : Ville, Pays, tolérance aux erreurs
+// Auto-complétion Ville, Pays
 document.getElementById("city").addEventListener("input", async function(){
     let query = this.value.trim();
     if(query.length < 1){
@@ -267,13 +284,11 @@ document.getElementById("city").addEventListener("input", async function(){
     document.getElementById("suggestions").innerHTML = suggestions;
 });
 
-// Sélection ville
 function selectCity(name){
     document.getElementById("city").value = name;
     document.getElementById("suggestions").innerHTML = "";
 }
 
-// Lancer la récupération dès le chargement
 getPrayerTimes();
 </script>
 
